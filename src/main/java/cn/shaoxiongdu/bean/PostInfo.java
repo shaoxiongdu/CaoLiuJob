@@ -16,11 +16,18 @@
 
 package cn.shaoxiongdu.bean;
 
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.http.HttpUtil;
 import cn.shaoxiongdu.utils.Log;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author: email@shaoxiongdu.cn
@@ -31,12 +38,19 @@ import org.jsoup.nodes.Element;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostInfo {
+    
+    private static final List<String> TITLE_WHITE_LIST = List.of(
+      "技术","图床","官方", "會員", "评分","VPN", "版规", "教程"
+    );
+    
     private String parentUrl;
     private String href;
     private String id;
     private String title;
     private String author;
     private Boolean isTopMark;
+    
+    private List<String> imageList = new ArrayList<>();
     
     public static PostInfo createFromHtmlTrElement(String parentUrl, Element trElement) {
         
@@ -54,6 +68,28 @@ public class PostInfo {
             Log.info(trElement.toString());
             return null;
         }
+        Log.info("\t\t页面\t【{}】\t的帖子\t【{}】\t解析帖子完成", postInfo.parentUrl, postInfo.id);
+        // 解析招聘列表
+        postInfo.analysisImageList();
+        
         return postInfo;
     }
+    
+    public void analysisImageList() {
+        
+        if (isSkip()) return;
+        
+        String response = HttpUtil.get(this.href);
+        Element rootElement = Jsoup.parse(response).getElementById("conttpc");
+        if (ObjUtil.isEmpty(rootElement)) return;
+        
+        this.imageList = rootElement.getElementsByTag("img").stream().map(element -> element.attr("ess-data")).toList();
+        
+        Log.info("\t\t\t帖子\t【{}】 的图片解析完成 共{}张", this.id, this.imageList.size());
+    }
+    
+    public boolean isSkip() {
+        return TITLE_WHITE_LIST.stream().anyMatch(whileTitle -> title.contains(whileTitle));
+    }
+    
 }

@@ -33,16 +33,15 @@ import java.util.stream.Collectors;
  * @describe:
  */
 @AllArgsConstructor
-public class CaoLiuPageTask implements Runnable{
+public class PostTask implements Runnable{
     
     private final String url;
-    private final int page;
     
     @Override
     public void run() {
-        Log.info("启动  url: {}, 页数: {} ", url, page);
+        Log.info("\t开始解析页面  url: {} ", url);
         List<PostInfo> postInfoList = getPostInfo();
-        Log.info("帖子爬取完成 {} {} end => {}条", url, page, postInfoList.size());
+        Log.info("\t页面解析完成 {} 当前页面帖子 => {}条", url, postInfoList.size());
         Database.addAll(postInfoList);
     }
     
@@ -52,6 +51,7 @@ public class CaoLiuPageTask implements Runnable{
                 .getElementsByClass("tr3 t_one tac")
                 .stream()
                 .filter(e -> e.childNodeSize() == 11)
+                .limit(10)
                 .map(trElement -> PostInfo.createFromHtmlTrElement(url, trElement))
                 .filter(ObjUtil::isNotEmpty)
                 .collect(Collectors.toList());

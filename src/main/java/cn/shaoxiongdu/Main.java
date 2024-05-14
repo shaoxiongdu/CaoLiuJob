@@ -1,39 +1,74 @@
 package cn.shaoxiongdu;
 
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.shaoxiongdu.bean.PostInfo;
+import cn.shaoxiongdu.constants.Constants;
 import cn.shaoxiongdu.database.Database;
-import cn.shaoxiongdu.task.CaoLiuPageTask;
+import cn.shaoxiongdu.task.DownloadImageTask;
+import cn.shaoxiongdu.task.PostTask;
+import cn.shaoxiongdu.utils.Log;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 public class Main {
     
-    
-    private static final int TOTAL_PAGE = 100;
-    
-    private static final String URL_TEMPLATE = "https://cl.2612x.xyz/thread0806.php?fid=16&page={}";
-    
-    private static final ExecutorService executorService = ThreadUtil.newFixedExecutor(TOTAL_PAGE, "task-", true);
+    private static final ExecutorService postTaskExecutor = ThreadUtil.newFixedExecutor(Constants.POST_MAX_PAGE, "post-task-", true);
+    private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.DOWNLOAD_THREAD_NUMBER, "download-image-task-", true);
     
     public static void main(String[] args) throws InterruptedException {
         
-        IntStream.range(0, TOTAL_PAGE)
-                .forEach(page -> executorService.submit(new CaoLiuPageTask(StrUtil.format(URL_TEMPLATE, page), page)));
+        test();
         
-        executorService.shutdown();
-        executorService.awaitTermination(1, TimeUnit.DAYS);
+        // 获取帖子列表
+//         handlerGetPost();
         
-        List<PostInfo> allPostInfoList = Database.getAllPostInfoList();
-        System.out.println();
+        // 下载
+        handlerDownloadImage();
+    }
+    
+    /**
+     *  获取帖子
+     * @throws InterruptedException
+     */
+    private static void handlerGetPost() throws InterruptedException {
+        IntStream.range(0, Constants.POST_MAX_PAGE).forEach(page ->
+                postTaskExecutor.submit(new PostTask(StrUtil.format(Constants.POST_URL_TEMPLATE, page))
+        ));
         
-//        CaoLiuPageTask task = new CaoLiuPageTask(StrUtil.format(URL_TEMPLATE, 0));
-//        task.run();
+        postTaskExecutor.shutdown();
+        postTaskExecutor.awaitTermination(1, TimeUnit.DAYS);
         
     }
+    
+    private static void test() {
+        PostTask task = new PostTask(StrUtil.format(Constants.POST_URL_TEMPLATE, 0));
+        task.run();
+        
+    }
+    
+    /**
+     * 下载图片
+     * @throws InterruptedException
+     */
+    private static void handlerDownloadImage() throws InterruptedException {
+        Log.info("帖子解析完成，开始下载...");
+        
+        FileUtil.del(Constants.WORK_SPACE);
+        
+        FileUtil.mkdir(Constants.WORK_SPACE);
+        
+        Database.getAllPostInfoList().forEach(postInfo -> {
+            downloadImageExecutor.submit(new DownloadImageTask(postInfo));
+        });
+        
+        downloadImageExecutor.shutdown();
+        downloadImageExecutor.awaitTermination(1, TimeUnit.DAYS);
+    }
+    
+    
+    
 }
