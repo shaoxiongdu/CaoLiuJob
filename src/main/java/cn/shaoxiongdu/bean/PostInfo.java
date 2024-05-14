@@ -16,9 +16,11 @@
 
 package cn.shaoxiongdu.bean;
 
+import cn.shaoxiongdu.utils.Log;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jsoup.nodes.Element;
 
 /**
  * @author: email@shaoxiongdu.cn
@@ -34,8 +36,24 @@ public class PostInfo {
     private String id;
     private String title;
     private String author;
-    private String date;
-    private String dateText;
     private Boolean isTopMark;
-    private String readings;
+    
+    public static PostInfo createFromHtmlTrElement(String parentUrl, Element trElement) {
+        
+        PostInfo postInfo = new PostInfo();
+        try {
+            postInfo.setParentUrl(parentUrl);
+            Element titleElement = trElement.getElementsByTag("h3").get(0);
+            postInfo.setTitle(titleElement.text());
+            postInfo.setId(trElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0).attr("id"));
+            postInfo.setAuthor(trElement.getElementsByClass("bl").get(0).text());
+            postInfo.setIsTopMark(!trElement.getElementsByClass("s3").isEmpty());
+            postInfo.setHref("https://cl.2612x.xyz/" + trElement.getElementsByTag("h3").get(0).getElementsByTag("a").attr("href"));
+        }catch (Throwable t){
+            t.printStackTrace();
+            Log.info(trElement.toString());
+            return null;
+        }
+        return postInfo;
+    }
 }

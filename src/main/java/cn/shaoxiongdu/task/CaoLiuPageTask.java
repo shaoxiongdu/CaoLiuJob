@@ -16,19 +16,15 @@
 
 package cn.shaoxiongdu.task;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.http.HttpUtil;
 import cn.shaoxiongdu.bean.PostInfo;
 import cn.shaoxiongdu.database.Database;
 import cn.shaoxiongdu.utils.Log;
 import lombok.AllArgsConstructor;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -37,16 +33,17 @@ import java.util.stream.Collectors;
  * @describe:
  */
 @AllArgsConstructor
-public class CaoLiuTask implements Runnable{
+public class CaoLiuPageTask implements Runnable{
     
     private final String url;
+    private final int page;
     
     @Override
     public void run() {
-        Log.info(url);
-//        List<PostInfo> postInfoList = getPostInfo();
-//        Log.info("{} {}", url, postInfoList.size());
-//        Database.addAll(postInfoList);
+        Log.info("{}, {} start", url, page);
+        List<PostInfo> postInfoList = getPostInfo();
+        Log.info("{} {} end => {}条", url, page, postInfoList.size());
+        Database.addAll(postInfoList);
     }
     
     private List<PostInfo> getPostInfo() {
@@ -55,35 +52,10 @@ public class CaoLiuTask implements Runnable{
                 .getElementsByClass("tr3 t_one tac")
                 .stream()
                 .filter(e -> e.childNodeSize() == 11)
-                .map(this::tr2Post)
+                .map(trElement -> PostInfo.createFromHtmlTrElement(url, trElement))
+                .filter(ObjUtil::isNotEmpty)
                 .collect(Collectors.toList());
                 
     }
     
-    private PostInfo tr2Post(Element trElement) {
-        
-        PostInfo postInfo = new PostInfo();
-        postInfo.setParentUrl(url);
-        
-        try {
-            Element titleElement = trElement.getElementsByTag("h3").get(0);
-            postInfo.setTitle(titleElement.text());
-            postInfo.setId(trElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0).attr("id"));
-            
-            postInfo.setAuthor(trElement.getElementsByClass("bl").get(0).text());
-            
-            postInfo.setIsTopMark(!trElement.getElementsByClass("s3").isEmpty());
-            
-            postInfo.setReadings(trElement.getElementsByTag("td").get(0).text());
-            
-        }catch (Throwable t){
-            Log.info(t.toString());
-            t.printStackTrace();
-            System.out.println(trElement);
-            throw new RuntimeException();
-        }
-        
-        
-        return postInfo;
-    }
 }

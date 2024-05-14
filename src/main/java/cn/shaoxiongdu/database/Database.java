@@ -38,5 +38,4 @@ public class Database {
         allPostInfoList.addAll(postInfoList);
     }
     
-    
 }

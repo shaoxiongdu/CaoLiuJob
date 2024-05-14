@@ -5,7 +5,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.shaoxiongdu.bean.PostInfo;
 import cn.shaoxiongdu.database.Database;
-import cn.shaoxiongdu.task.CaoLiuTask;
+import cn.shaoxiongdu.task.CaoLiuPageTask;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 public class Main {
     
     
-    private static final int TOTAL_PAGE = 779;
+    private static final int TOTAL_PAGE = 100;
     
     private static final String URL_TEMPLATE = "https://cl.2612x.xyz/thread0806.php?fid=16&page={}";
     
@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         
         IntStream.range(0, TOTAL_PAGE)
-                .forEach(page -> executorService.submit(new CaoLiuTask(StrUtil.format(URL_TEMPLATE, page))));
+                .forEach(page -> executorService.submit(new CaoLiuPageTask(StrUtil.format(URL_TEMPLATE, page), page)));
         
         executorService.shutdown();
         executorService.awaitTermination(1, TimeUnit.DAYS);
@@ -32,8 +32,8 @@ public class Main {
         List<PostInfo> allPostInfoList = Database.getAllPostInfoList();
         System.out.println();
         
-        //        CaoLiuTask task = new CaoLiuTask(StrUtil.format(URL_TEMPLATE, 0));
-        //        task.run();
+//        CaoLiuPageTask task = new CaoLiuPageTask(StrUtil.format(URL_TEMPLATE, 0));
+//        task.run();
         
     }
 }
