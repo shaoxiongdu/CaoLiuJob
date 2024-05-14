@@ -51,7 +51,7 @@ public class PostTask implements Runnable{
                 .getElementsByClass("tr3 t_one tac")
                 .stream()
                 .filter(e -> e.childNodeSize() == 11)
-                .limit(10)
+//                .limit(10)
                 .map(trElement -> PostInfo.createFromHtmlTrElement(url, trElement))
                 .filter(ObjUtil::isNotEmpty)
                 .collect(Collectors.toList());
