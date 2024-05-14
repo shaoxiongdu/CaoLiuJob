@@ -47,8 +47,7 @@ public class DownloadPostTask implements Runnable{
 
         File mdFile = postInfo.getMdFile();
 
-        FileUtil.appendString(postInfo.getContextList().get(0), mdFile, Charset.defaultCharset());
-        for (int i = 1; i < postInfo.getContextList().size(); i++) {
+        for (int i = 0; i < postInfo.getContextList().size(); i++) {
             String url = postInfo.getContextList().get(i);
 
             String imageFileName = url.substring(url.lastIndexOf("/") + 1, url.length());
