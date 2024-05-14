@@ -40,9 +40,9 @@ public class CaoLiuPageTask implements Runnable{
     
     @Override
     public void run() {
-        Log.info("{}, {} start", url, page);
+        Log.info("启动  url: {}, 页数: {} ", url, page);
         List<PostInfo> postInfoList = getPostInfo();
-        Log.info("{} {} end => {}条", url, page, postInfoList.size());
+        Log.info("帖子爬取完成 {} {} end => {}条", url, page, postInfoList.size());
         Database.addAll(postInfoList);
     }
     
