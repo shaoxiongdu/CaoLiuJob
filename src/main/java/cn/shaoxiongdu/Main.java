@@ -1,18 +1,39 @@
 package cn.shaoxiongdu;
 
-//TIP 要<b>运行</b>代码，请按 <shortcut actionId="Run"/> 或
-// 点击间距中的 <icon src="AllIcons.Actions.Execute"/> 图标。
+
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.shaoxiongdu.bean.PostInfo;
+import cn.shaoxiongdu.database.Database;
+import cn.shaoxiongdu.task.CaoLiuTask;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+
 public class Main {
     
-    public static void main(String[] args) {
-        //TIP 当文本光标位于高亮显示的文本处时按 <shortcut actionId="ShowIntentionActions"/>
-        // 查看 IntelliJ IDEA 建议如何修复。
-        System.out.printf("Hello and welcome!");
+    
+    private static final int TOTAL_PAGE = 779;
+    
+    private static final String URL_TEMPLATE = "https://cl.2612x.xyz/thread0806.php?fid=16&page={}";
+    
+    private static final ExecutorService executorService = ThreadUtil.newFixedExecutor(TOTAL_PAGE, "task-", true);
+    
+    public static void main(String[] args) throws InterruptedException {
         
-        for (int i = 1; i <= 5; i++) {
-            //TIP 按 <shortcut actionId="Debug"/> 开始调试代码。我们已经设置了一个 <icon src="AllIcons.Debugger.Db_set_breakpoint"/> 断点
-            // 但您始终可以通过按 <shortcut actionId="ToggleLineBreakpoint"/> 添加更多断点。
-            System.out.println("i = " + i);
-        }
+        IntStream.range(0, TOTAL_PAGE)
+                .forEach(page -> executorService.submit(new CaoLiuTask(StrUtil.format(URL_TEMPLATE, page))));
+        
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.DAYS);
+        
+        List<PostInfo> allPostInfoList = Database.getAllPostInfoList();
+        System.out.println();
+        
+        //        CaoLiuTask task = new CaoLiuTask(StrUtil.format(URL_TEMPLATE, 0));
+        //        task.run();
+        
     }
 }
