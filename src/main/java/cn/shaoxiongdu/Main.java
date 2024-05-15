@@ -17,8 +17,8 @@ import java.util.stream.IntStream;
 
 public class Main {
     
-    private static final ExecutorService postTaskExecutor = ThreadUtil.newFixedExecutor(Constants.POST_MAX_PAGE, "post-task-", true);
-    private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.DOWNLOAD_THREAD_NUMBER, "download-image-task-", true);
+    private static final ExecutorService postTaskExecutor = ThreadUtil.newFixedExecutor(Constants.POST_MAX_PAGE, "task-帖子-线程-", true);
+    private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.DOWNLOAD_THREAD_NUMBER, "task-download-线程-", true);
     
     public static void main(String[] args) throws InterruptedException {
 

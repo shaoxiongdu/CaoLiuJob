@@ -39,9 +39,9 @@ public class PostTask implements Runnable{
     
     @Override
     public void run() {
-        Log.info("\t开始解析页面  url: {} ", url);
+//        Log.info("\t开始解析页面  url: {} ", url);
         List<PostInfo> postInfoList = getPostInfo();
-        Log.info("\t页面解析完成 {} 当前页面帖子 => {}条", url, postInfoList.size());
+        Log.info("\t页面解析完成 当前页面帖子 => {}条", postInfoList.size());
         Database.addAll(postInfoList);
     }
     
@@ -51,7 +51,7 @@ public class PostTask implements Runnable{
                 .getElementsByClass("tr3 t_one tac")
                 .stream()
                 .filter(e -> e.childNodeSize() == 11)
-//                .limit(10)
+                .limit(10)
                 .map(trElement -> PostInfo.createFromHtmlTrElement(url, trElement))
                 .filter(ObjUtil::isNotEmpty)
                 .collect(Collectors.toList());

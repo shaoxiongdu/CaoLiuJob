@@ -29,7 +29,7 @@ public interface Constants {
     
     String POST_URL_TEMPLATE = BASE_URL + POST_URL_ + "?fid=16&page={}";
     
-    int POST_MAX_PAGE = 100;
+    int POST_MAX_PAGE = 10;
     int DOWNLOAD_THREAD_NUMBER = 10000;
     String WORK_SPACE = System.getProperty("user.dir") + "/posts";
 
