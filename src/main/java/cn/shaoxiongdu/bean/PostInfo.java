@@ -79,7 +79,7 @@ public class PostInfo {
             postInfo.setHref("https://cl.2612x.xyz/" + trElement.getElementsByTag("h3").get(0).getElementsByTag("a").attr("href"));
         }catch (Throwable t){
             t.printStackTrace();
-            Log.info(trElement.toString());
+            Log.info(PostInfo.class, trElement.toString());
             return null;
         }
 
@@ -87,7 +87,7 @@ public class PostInfo {
 
         // 解析招聘列表
         postInfo.analysisContextList();
-        Log.info(" 帖子解析完成【{}】 图片共{}张", postInfo.id, postInfo.getImageList().size());
+        Log.info(PostInfo.class, " 帖子解析完成【{}】 图片共{}张", postInfo.id, postInfo.getImageList().size());
         
         return postInfo;
     }

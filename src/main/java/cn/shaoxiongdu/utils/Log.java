@@ -28,8 +28,8 @@ public class Log {
     
     private static final cn.hutool.log.Log log = LogFactory.get();
     
-    public static void info(String template, Object... args) {
-        log.info(Thread.currentThread().getName() + "\t => \t" + StrUtil.format(template, args));
+    public static void info(Class clazz, String template, Object... args) {
+        LogFactory.get(clazz).info(Thread.currentThread().getName() + "\t => \t" + StrUtil.format(template, args));
     }
     
 }

@@ -81,7 +81,7 @@ public class CaoLiuJob {
             
             successPostList.add(postInfo);
         }
-        Log.info("数据校准完成 废弃帖子{}个" + count);
+        Log.info(CaoLiuJob.class, "数据校准完成 废弃帖子{}个" + count);
         Database.setAllPostInfoList(successPostList);
     }
     
@@ -106,7 +106,7 @@ public class CaoLiuJob {
      * @throws InterruptedException
      */
     private static void handlerDownloadPost() throws InterruptedException {
-        Log.info("帖子解析完成，开始下载... " + Database.getAllPostInfoList().size() + "个帖子");
+        Log.info(CaoLiuJob.class, "帖子解析完成，开始下载... " + Database.getAllPostInfoList().size() + "个帖子");
         
         FileUtil.del(Constants.WORK_SPACE);
         

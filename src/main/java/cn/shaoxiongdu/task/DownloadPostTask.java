@@ -40,14 +40,14 @@ public class DownloadPostTask implements Runnable{
     @Override
     public void run() {
         
-        Log.info(" 开始下载帖子 {}, 图片共{}张", postInfo.getId(), postInfo.getImageList().size() - 1);
+        Log.info(this.getClass()," 开始下载帖子 {}, 图片共{}张", postInfo.getId(), postInfo.getImageList().size() - 1);
 
         File mdFile = postInfo.getMdFile();
 
         for (int i = 0; i < postInfo.getImageList().size(); i++) {
             PostInfo.Image image = postInfo.getImageList().get(i);
             
-            Log.info("  开始下载图片  帖子[{} 第 {} 张照片 共{}张 ", postInfo.getId(),i + 1, postInfo.getImageList().size() - 1);
+            Log.info(this.getClass(),"  开始下载图片  帖子[{} 第 {} 张照片 共{}张 ", postInfo.getId(),i + 1, postInfo.getImageList().size() - 1);
 
             try {
                 File imageFile = new File(image.getLocalUrl());
@@ -57,7 +57,7 @@ public class DownloadPostTask implements Runnable{
                 
                 if (FileUtil.isEmpty(imageFile)) {
                     FileUtil.del(imageFile);
-                    Log.info("帖子{}的图片{}格式损坏，已删除", postInfo.getId(), imageFile.getAbsolutePath());
+                    Log.info(this.getClass(),"帖子{}的图片{}格式损坏，已删除", postInfo.getId(), imageFile.getAbsolutePath());
                     image.setIsDamage(true);
                     continue;
                 }
@@ -66,12 +66,12 @@ public class DownloadPostTask implements Runnable{
             }
             
             FileUtil.appendString(StrUtil.format("- ![{}]({})\n", image.getFileName(), image.getLocalUrl()), mdFile, Charset.defaultCharset());
-            Log.info("帖子 {} 的第 {} 张照片下载完成 共{}张 ", postInfo.getId(),i + 1, postInfo.getImageList().size());
+            Log.info(this.getClass(),"帖子 {} 的第 {} 张照片下载完成 共{}张 ", postInfo.getId(),i + 1, postInfo.getImageList().size());
             
         }
         if (FileUtil.isEmpty(mdFile)) {
             FileUtil.del(mdFile);
-            Log.info("帖子{}已损坏，已删除", postInfo.getId());
+            Log.info(this.getClass(),"帖子{}已损坏，已删除", postInfo.getId());
             postInfo.setIsDamage(true);
         }
 
