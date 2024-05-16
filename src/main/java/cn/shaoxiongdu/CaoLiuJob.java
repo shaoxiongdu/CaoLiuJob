@@ -49,8 +49,7 @@ public class CaoLiuJob {
     static void run() throws InterruptedException {
 
         // 爬
-        handlerCrawlingPost(Constants.POST1_URL_TEMPLATE);
-        handlerCrawlingPost(Constants.POST2_URL_TEMPLATE);
+        handlerCrawlingPost();
 
         // 下
         handlerDownloadPost();
@@ -62,10 +61,16 @@ public class CaoLiuJob {
         savePostInfoList2Json();
     }
     
+    /**
+     * 帖子信息保存到json文件
+     */
     private static void savePostInfoList2Json() {
         FileUtil.appendString(JSONUtil.toJsonStr(Database.getAllPostInfoList()), Constants.WORK_SPACE + "/" + Constants.POST_INFO_LIST_JSON_FILE_NAME, StandardCharsets.UTF_8);
     }
     
+    /**
+     * 校验数据 去除空帖子
+     */
     private static void calibrationData() {
         
         List<PostInfo> successPostList = new ArrayList<>(Database.getAllPostInfoList().size());
@@ -86,20 +91,21 @@ public class CaoLiuJob {
         Database.setAllPostInfoList(successPostList);
     }
     
+    /**
+     * 爬帖子
+     * @throws InterruptedException
+     */
+    private static void handlerCrawlingPost() throws InterruptedException {
+        handlerCrawlingPost(Constants.POST1_URL_TEMPLATE);
+        handlerCrawlingPost(Constants.POST2_URL_TEMPLATE);
+        postTaskExecutor.shutdown();
+        postTaskExecutor.awaitTermination(1, TimeUnit.DAYS);
+    }
+    
     private static void handlerCrawlingPost(String postUrl) throws InterruptedException {
         IntStream.range(0, Constants.POST_MAX_PAGE).forEach(page ->
                 postTaskExecutor.submit(new CrawlingPostTask(StrUtil.format(postUrl, page))
                 ));
-
-        postTaskExecutor.shutdown();
-        postTaskExecutor.awaitTermination(1, TimeUnit.DAYS);
-        
-    }
-    
-    private static void test() throws InterruptedException {
-        CrawlingPostTask task = new CrawlingPostTask(StrUtil.format(Constants.POST2_URL_TEMPLATE, 0));
-        task.run();
-        handlerDownloadPost();
     }
     
     /**
