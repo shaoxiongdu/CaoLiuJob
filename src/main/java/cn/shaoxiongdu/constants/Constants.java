@@ -32,8 +32,10 @@ public interface Constants {
     
     int POST_MAX_PAGE = 100;
     int DOWNLOAD_THREAD_NUMBER = 10000;
-    String WORK_SPACE_POSTS_DIR = System.getProperty("user.dir") + "/posts";
+    String WORK_SPACE_POSTS_DIR = System.getProperty("user.dir") + "/cao-liu/posts";
 
-    String WORK_SPACE_IMAGES_DIR = System.getProperty("user.dir") + "/posts/images";
+    String WORK_SPACE_IMAGES_DIR = System.getProperty("user.dir") + "/cao-liu/images/";
+    String WORK_SPACE = System.getProperty("user.dir") + "/cao-liu";
+    String POST_INFO_LIST_JSON_FILE_NAME = "post-list.json";
 
 }

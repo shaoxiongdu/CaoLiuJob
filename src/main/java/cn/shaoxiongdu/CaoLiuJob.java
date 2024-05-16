@@ -19,14 +19,21 @@ package cn.shaoxiongdu;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import cn.shaoxiongdu.bean.PostInfo;
 import cn.shaoxiongdu.constants.Constants;
 import cn.shaoxiongdu.database.Database;
 import cn.shaoxiongdu.task.CrawlingPostTask;
 import cn.shaoxiongdu.task.DownloadPostTask;
 import cn.shaoxiongdu.utils.Log;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -46,6 +53,36 @@ public class CaoLiuJob {
         
         // 下
         handlerDownloadPost();
+        
+        // 校准数据
+        calibrationData();
+        
+        // 存
+        savePostInfoList2Json();
+    }
+    
+    private static void savePostInfoList2Json() {
+        FileUtil.appendString(JSONUtil.toJsonStr(Database.getAllPostInfoList()), Constants.WORK_SPACE + "/" + Constants.POST_INFO_LIST_JSON_FILE_NAME, StandardCharsets.UTF_8);
+    }
+    
+    private static void calibrationData() {
+        
+        List<PostInfo> successPostList = new ArrayList<>(Database.getAllPostInfoList().size());
+        int count = 0;
+        for (PostInfo postInfo : Database.getAllPostInfoList()) {
+            if (postInfo.getIsDamage()) {
+                count++;
+                continue;
+            }
+            
+            List<PostInfo.Image> successImageList = postInfo.getImageList().stream().filter(image -> !image.getIsDamage())
+                    .collect(Collectors.toList());
+            postInfo.setImageList(successImageList);
+            
+            successPostList.add(postInfo);
+        }
+        Log.info("数据校准完成 废弃帖子{}个" + count);
+        Database.setAllPostInfoList(successPostList);
     }
     
     private static void handlerCrawlingPost() throws InterruptedException {
@@ -71,7 +108,7 @@ public class CaoLiuJob {
     private static void handlerDownloadPost() throws InterruptedException {
         Log.info("帖子解析完成，开始下载... " + Database.getAllPostInfoList().size() + "个帖子");
         
-        FileUtil.del(Constants.WORK_SPACE_POSTS_DIR);
+        FileUtil.del(Constants.WORK_SPACE);
         
         FileUtil.mkdir(Constants.WORK_SPACE_POSTS_DIR);
         FileUtil.mkdir(Constants.WORK_SPACE_IMAGES_DIR);

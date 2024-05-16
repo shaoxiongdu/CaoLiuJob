@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author: email@shaoxiongdu.cn
@@ -51,14 +52,25 @@ public class PostInfo {
     private String title;
     private String author;
     private Boolean isTopMark;
+    private Boolean isDamage;
     
-    private List<String> imageUrlList = new ArrayList<>();
+    @AllArgsConstructor
+    @Data
+    public static class Image{
+        private String remoteUrl;
+        private String fileName;
+        private String localUrl;
+        private Boolean isDamage;
+    }
+    
+    private List<Image> imageList = new ArrayList<>();
     
     public static PostInfo createFromHtmlTrElement(String parentUrl, Element trElement) {
         
         PostInfo postInfo = new PostInfo();
         try {
             postInfo.setParentUrl(parentUrl);
+            postInfo.setIsDamage(false);
             Element titleElement = trElement.getElementsByTag("h3").get(0);
             postInfo.setTitle(titleElement.text());
             postInfo.setId(trElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0).attr("id"));
@@ -75,7 +87,7 @@ public class PostInfo {
 
         // 解析招聘列表
         postInfo.analysisContextList();
-        Log.info(" 帖子解析完成【{}】 图片共{}张", postInfo.id, postInfo.getImageUrlList().size());
+        Log.info(" 帖子解析完成【{}】 图片共{}张", postInfo.id, postInfo.getImageList().size());
         
         return postInfo;
     }
@@ -87,8 +99,15 @@ public class PostInfo {
         String response = HttpUtil.get(this.href);
         Element rootElement = Jsoup.parse(response).getElementById("conttpc");
         if (ObjUtil.isEmpty(rootElement)) return;
-
-        this.imageUrlList.addAll(rootElement.getElementsByTag("img").stream().map(element -> element.attr("ess-data")).toList());
+        
+        List<Image> imageList = rootElement.getElementsByTag("img").stream().map(element -> element.attr("ess-data"))
+                .map(imageRemoteUrl -> {
+                    
+                    String imageFileName = imageRemoteUrl.substring(imageRemoteUrl.lastIndexOf("/") + 1, imageRemoteUrl.length());
+                    
+                    return new Image(imageRemoteUrl, imageFileName, Constants.WORK_SPACE_IMAGES_DIR + imageFileName, false);
+                }).collect(Collectors.toList());
+        this.imageList.addAll(imageList);
     }
     
     public boolean isSkip() {

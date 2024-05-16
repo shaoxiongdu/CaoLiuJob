@@ -39,9 +39,9 @@ public class CrawlingPostTask implements Runnable{
     
     @Override
     public void run() {
-//        Log.info("开始解析页面  url: {} ", url);
+        Log.info("开始解析页面  url: {} ", url);
         List<PostInfo> postInfoList = getPostInfo();
-        Log.info(" 页面解析完成 {} 共{}条帖子", url, postInfoList.size());
+        Log.info("页面解析完成 {} 共{}条帖子", url, postInfoList.size());
         Database.addAll(postInfoList);
     }
     

@@ -19,6 +19,7 @@ package cn.shaoxiongdu.database;
 import cn.shaoxiongdu.bean.PostInfo;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +32,9 @@ import java.util.List;
 @Data
 public class Database {
     
+    @Setter
     @Getter
-    private static final List<PostInfo> allPostInfoList = new ArrayList<>();
+    private static List<PostInfo> allPostInfoList = new ArrayList<>();
     
     public static synchronized void addAll(List<PostInfo> postInfoList) {
         allPostInfoList.addAll(postInfoList);
