@@ -33,15 +33,15 @@ import java.util.stream.Collectors;
  * @describe:
  */
 @AllArgsConstructor
-public class PostTask implements Runnable{
+public class CrawlingPostTask implements Runnable{
     
     private final String url;
     
     @Override
     public void run() {
-//        Log.info("\t开始解析页面  url: {} ", url);
+//        Log.info("开始解析页面  url: {} ", url);
         List<PostInfo> postInfoList = getPostInfo();
-        Log.info("\t页面解析完成 当前页面帖子 => {}条", postInfoList.size());
+        Log.info(" 页面解析完成 {} 共{}条帖子", url, postInfoList.size());
         Database.addAll(postInfoList);
     }
     

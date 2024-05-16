@@ -6,24 +6,24 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.shaoxiongdu.constants.Constants;
 import cn.shaoxiongdu.database.Database;
+import cn.shaoxiongdu.task.CleanTask;
 import cn.shaoxiongdu.task.DownloadPostTask;
-import cn.shaoxiongdu.task.PostTask;
+import cn.shaoxiongdu.task.CrawlingPostTask;
 import cn.shaoxiongdu.utils.Log;
 
-import javax.xml.crypto.Data;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 public class Main {
     
-    private static final ExecutorService postTaskExecutor = ThreadUtil.newFixedExecutor(Constants.POST_MAX_PAGE, "task-帖子-线程-", true);
-    private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.DOWNLOAD_THREAD_NUMBER, "task-download-线程-", true);
+    private static final ExecutorService postTaskExecutor = ThreadUtil.newFixedExecutor(Constants.POST_MAX_PAGE, "task-爬取帖子-线程-", true);
+    private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.DOWNLOAD_THREAD_NUMBER, "task-下载帖子-线程-", true);
     
     public static void main(String[] args) throws InterruptedException {
-
+        
         // 获取帖子列表
-         handlerGetPost();
+        handlerGetPost();
         
         // 下载
         handlerDownloadImage();
@@ -35,7 +35,7 @@ public class Main {
      */
     private static void handlerGetPost() throws InterruptedException {
         IntStream.range(0, Constants.POST_MAX_PAGE).forEach(page ->
-                postTaskExecutor.submit(new PostTask(StrUtil.format(Constants.POST_URL_TEMPLATE, page))
+                postTaskExecutor.submit(new CrawlingPostTask(StrUtil.format(Constants.POST2_URL_TEMPLATE, page))
         ));
         
         postTaskExecutor.shutdown();
@@ -44,7 +44,7 @@ public class Main {
     }
     
     private static void test() throws InterruptedException {
-        PostTask task = new PostTask(StrUtil.format(Constants.POST_URL_TEMPLATE, 0));
+        CrawlingPostTask task = new CrawlingPostTask(StrUtil.format(Constants.POST2_URL_TEMPLATE, 0));
         task.run();
         handlerDownloadImage();
     }
@@ -56,10 +56,10 @@ public class Main {
     private static void handlerDownloadImage() throws InterruptedException {
         Log.info("帖子解析完成，开始下载... " + Database.getAllPostInfoList().size() + "个帖子");
         
-        FileUtil.del(Constants.WORK_SPACE);
+        FileUtil.del(Constants.WORK_SPACE_POSTS_DIR);
         
-        FileUtil.mkdir(Constants.WORK_SPACE);
-        FileUtil.mkdir(Constants.WORK_SPACE_IMAGES);
+        FileUtil.mkdir(Constants.WORK_SPACE_POSTS_DIR);
+        FileUtil.mkdir(Constants.WORK_SPACE_IMAGES_DIR);
 
         Database.getAllPostInfoList().forEach(postInfo -> {
             downloadImageExecutor.submit(new DownloadPostTask(postInfo));

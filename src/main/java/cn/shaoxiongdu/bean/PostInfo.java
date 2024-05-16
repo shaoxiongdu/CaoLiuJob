@@ -25,16 +25,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author: email@shaoxiongdu.cn
@@ -57,7 +52,7 @@ public class PostInfo {
     private String author;
     private Boolean isTopMark;
     
-    private List<String> contextList = new ArrayList<>();
+    private List<String> imageUrlList = new ArrayList<>();
     
     public static PostInfo createFromHtmlTrElement(String parentUrl, Element trElement) {
         
@@ -78,9 +73,9 @@ public class PostInfo {
 
         if (postInfo.isSkip()) return null;
 
-        Log.info("\t\t页面\t【{}】\t的帖子\t【{}】\t解析帖子完成", postInfo.parentUrl, postInfo.id);
         // 解析招聘列表
         postInfo.analysisContextList();
+        Log.info(" 帖子解析完成【{}】 图片共{}张", postInfo.id, postInfo.getImageUrlList().size());
         
         return postInfo;
     }
@@ -93,9 +88,7 @@ public class PostInfo {
         Element rootElement = Jsoup.parse(response).getElementById("conttpc");
         if (ObjUtil.isEmpty(rootElement)) return;
 
-        this.contextList.addAll(rootElement.getElementsByTag("img").stream().map(element -> element.attr("ess-data")).toList());
-        
-        Log.info("\t\t\t帖子\t【{}】 的解析完成 共{}个元素", this.id, this.contextList.size());
+        this.imageUrlList.addAll(rootElement.getElementsByTag("img").stream().map(element -> element.attr("ess-data")).toList());
     }
     
     public boolean isSkip() {
@@ -103,7 +96,7 @@ public class PostInfo {
     }
 
     public File getMdFile() {
-        File file = new File(Constants.WORK_SPACE + "/" + title + ".md");
+        File file = new File(Constants.WORK_SPACE_POSTS_DIR + "/" + title + ".md");
         if (!file.exists()) {
             try {
                 file.createNewFile();

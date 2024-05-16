@@ -27,12 +27,13 @@ public interface Constants {
     
     String POST_URL_ = "thread0806.php";
     
-    String POST_URL_TEMPLATE = BASE_URL + POST_URL_ + "?fid=16&page={}";
+    String POST1_URL_TEMPLATE = BASE_URL + POST_URL_ + "?fid=16&page={}";
+    String POST2_URL_TEMPLATE = BASE_URL + POST_URL_ + "?fid=8&page={}";
     
-    int POST_MAX_PAGE = 10;
+    int POST_MAX_PAGE = 100;
     int DOWNLOAD_THREAD_NUMBER = 10000;
-    String WORK_SPACE = System.getProperty("user.dir") + "/posts";
+    String WORK_SPACE_POSTS_DIR = System.getProperty("user.dir") + "/posts";
 
-    String WORK_SPACE_IMAGES = System.getProperty("user.dir") + "/posts/images";
+    String WORK_SPACE_IMAGES_DIR = System.getProperty("user.dir") + "/posts/images";
 
 }

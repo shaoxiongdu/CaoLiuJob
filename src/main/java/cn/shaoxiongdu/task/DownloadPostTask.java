@@ -25,9 +25,7 @@ import cn.shaoxiongdu.utils.Log;
 import lombok.AllArgsConstructor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
@@ -43,26 +41,38 @@ public class DownloadPostTask implements Runnable{
     @Override
     public void run() {
         
-        Log.info("\t开始下载帖子 {}, 其中图片{}张", postInfo.getId(), postInfo.getContextList().size() - 1);
+        Log.info(" 开始下载帖子 {}, 图片共{}张", postInfo.getId(), postInfo.getImageUrlList().size() - 1);
 
         File mdFile = postInfo.getMdFile();
 
-        for (int i = 0; i < postInfo.getContextList().size(); i++) {
-            String url = postInfo.getContextList().get(i);
+        for (int i = 0; i < postInfo.getImageUrlList().size(); i++) {
+            String url = postInfo.getImageUrlList().get(i);
 
             String imageFileName = url.substring(url.lastIndexOf("/") + 1, url.length());
-            Log.info("\t\t开始下载帖子 {} 的第 {} 张照片 共{}张 ", postInfo.getId(),i, postInfo.getContextList().size() - 1);
+            Log.info("  开始下载图片  帖子[{} 第 {} 张照片 共{}张 ", postInfo.getId(),i + 1, postInfo.getImageUrlList().size() - 1);
 
             try {
-                FileOutputStream imageOutput = new FileOutputStream(Constants.WORK_SPACE_IMAGES + "/" + imageFileName);
+                File imageFile = new File(Constants.WORK_SPACE_IMAGES_DIR + "/" + imageFileName);
+                FileOutputStream imageOutput = new FileOutputStream(imageFile);
                 HttpUtil.download(url, imageOutput, true);
                 imageOutput.close();
+                
+                if (FileUtil.isEmpty(imageFile)) {
+                    FileUtil.del(imageFile);
+                    Log.info("帖子{}的图片{}格式损坏，已删除", postInfo.getId(), imageFile.getAbsolutePath());
+                    continue;
+                }
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
-
+            
             FileUtil.appendString(StrUtil.format("- ![](./images/{})\n", imageFileName), mdFile, Charset.defaultCharset());
-            Log.info("\t\t帖子 {} 的第 {} 张照片下载完成 共{}张 ", postInfo.getId(),i, postInfo.getContextList().size() - 1);
+            Log.info("帖子 {} 的第 {} 张照片下载完成 共{}张 ", postInfo.getId(),i, postInfo.getImageUrlList().size() - 1);
+            
+        }
+        if (FileUtil.isEmpty(mdFile)) {
+            FileUtil.del(mdFile);
+            Log.info("帖子{}已损坏，已删除", postInfo.getId());
         }
 
     }
