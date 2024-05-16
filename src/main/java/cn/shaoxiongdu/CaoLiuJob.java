@@ -47,16 +47,17 @@ public class CaoLiuJob {
     private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.DOWNLOAD_THREAD_NUMBER, "task-下载帖子-线程-", true);
     
     static void run() throws InterruptedException {
-        
+
         // 爬
-        handlerCrawlingPost();
-        
+        handlerCrawlingPost(Constants.POST1_URL_TEMPLATE);
+        handlerCrawlingPost(Constants.POST2_URL_TEMPLATE);
+
         // 下
         handlerDownloadPost();
-        
+
         // 校准数据
         calibrationData();
-        
+
         // 存
         savePostInfoList2Json();
     }
@@ -85,11 +86,11 @@ public class CaoLiuJob {
         Database.setAllPostInfoList(successPostList);
     }
     
-    private static void handlerCrawlingPost() throws InterruptedException {
+    private static void handlerCrawlingPost(String postUrl) throws InterruptedException {
         IntStream.range(0, Constants.POST_MAX_PAGE).forEach(page ->
-                postTaskExecutor.submit(new CrawlingPostTask(StrUtil.format(Constants.POST2_URL_TEMPLATE, page))
+                postTaskExecutor.submit(new CrawlingPostTask(StrUtil.format(postUrl, page))
                 ));
-        
+
         postTaskExecutor.shutdown();
         postTaskExecutor.awaitTermination(1, TimeUnit.DAYS);
         
