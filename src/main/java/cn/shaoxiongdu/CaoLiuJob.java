@@ -43,8 +43,8 @@ import java.util.stream.IntStream;
  */
 public class CaoLiuJob {
     
-    private static final ExecutorService postTaskExecutor = ThreadUtil.newFixedExecutor(Constants.POST_MAX_PAGE, "task-爬取帖子-线程-", true);
-    private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.DOWNLOAD_THREAD_NUMBER, "task-下载帖子-线程-", true);
+    private static final ExecutorService postTaskExecutor = ThreadUtil.newFixedExecutor(Constants.PATCH_CRAWLING_THREAD_NUMBER, "task-爬取帖子-线程-", true);
+    private static final ExecutorService downloadImageExecutor = ThreadUtil.newFixedExecutor(Constants.PATCH_DOWNLOAD_THREAD_NUMBER, "task-下载帖子-线程-", true);
     
     static void run() throws InterruptedException {
 

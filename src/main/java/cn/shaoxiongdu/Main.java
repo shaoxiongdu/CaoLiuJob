@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
+        System.setProperty("https.protocols", "TLSv1.2,TLSv1.1,SSLv3");
         CaoLiuJob.run();
     }
 

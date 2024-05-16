@@ -66,36 +66,47 @@ public class PostInfo {
     private List<Image> imageList = new ArrayList<>();
     
     public static PostInfo createFromHtmlTrElement(String parentUrl, Element trElement) {
-        
-        PostInfo postInfo = new PostInfo();
         try {
-            postInfo.setParentUrl(parentUrl);
-            postInfo.setIsDamage(false);
-            Element titleElement = trElement.getElementsByTag("h3").get(0);
-            postInfo.setTitle(titleElement.text());
-            postInfo.setId(trElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0).attr("id"));
-            postInfo.setAuthor(trElement.getElementsByClass("bl").get(0).text());
-            postInfo.setIsTopMark(!trElement.getElementsByClass("s3").isEmpty());
-            postInfo.setHref("https://cl.2612x.xyz/" + trElement.getElementsByTag("h3").get(0).getElementsByTag("a").attr("href"));
-        }catch (Throwable t){
+           return create(parentUrl, trElement);
+        }catch (Throwable t) {
             t.printStackTrace();
-            Log.info(PostInfo.class, trElement.toString());
+            System.out.println();
             return null;
         }
+    }
+
+    private static PostInfo create(String parentUrl, Element trElement) {
+
+        PostInfo postInfo = new PostInfo();
+
+        postInfo.setParentUrl(parentUrl);
+        postInfo.setIsDamage(false);
+        Element titleElement = trElement.getElementsByTag("h3").get(0);
+        postInfo.setTitle(titleElement.text());
+        postInfo.setId(trElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0).attr("id"));
+        postInfo.setAuthor(trElement.getElementsByClass("bl").get(0).text());
+        postInfo.setIsTopMark(!trElement.getElementsByClass("s3").isEmpty());
+        postInfo.setHref("https://cl.2612x.xyz/" + trElement.getElementsByTag("h3").get(0).getElementsByTag("a").attr("href"));
 
         if (postInfo.isSkip()) return null;
 
         // 解析招聘列表
-        postInfo.analysisContextList();
+        try {
+            postInfo.analysisContextList();
+        }catch (Throwable t){
+            t.printStackTrace();
+            System.out.println(postInfo);
+        }
+    ;
         Log.info(PostInfo.class, " 帖子解析完成【{}】 图片共{}张", postInfo.id, postInfo.getImageList().size());
-        
+
         return postInfo;
     }
     
     public void analysisContextList() {
         
         if (isSkip()) return;
-        
+
         String response = HttpUtil.get(this.href);
         Element rootElement = Jsoup.parse(response).getElementById("conttpc");
         if (ObjUtil.isEmpty(rootElement)) return;

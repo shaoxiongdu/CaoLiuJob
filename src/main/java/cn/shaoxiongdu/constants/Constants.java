@@ -31,7 +31,8 @@ public interface Constants {
     String POST2_URL_TEMPLATE = BASE_URL + POST_URL_ + "?fid=8&page={}";
     
     int POST_MAX_PAGE = 100;
-    int DOWNLOAD_THREAD_NUMBER = 1000;
+    int PATCH_DOWNLOAD_THREAD_NUMBER = 1000;
+    int PATCH_CRAWLING_THREAD_NUMBER = 100;
     String WORK_SPACE_POSTS_DIR = System.getProperty("user.dir") + "/cao-liu/posts";
 
     String WORK_SPACE_IMAGES_DIR = System.getProperty("user.dir") + "/cao-liu/images/";
