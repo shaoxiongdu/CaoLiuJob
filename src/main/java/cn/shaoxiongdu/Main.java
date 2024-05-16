@@ -6,7 +6,6 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.shaoxiongdu.constants.Constants;
 import cn.shaoxiongdu.database.Database;
-import cn.shaoxiongdu.task.CleanTask;
 import cn.shaoxiongdu.task.DownloadPostTask;
 import cn.shaoxiongdu.task.CrawlingPostTask;
 import cn.shaoxiongdu.utils.Log;
