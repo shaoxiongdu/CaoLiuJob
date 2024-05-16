@@ -40,13 +40,22 @@ public class DownloadPostTask implements Runnable{
     @Override
     public void run() {
         
+       try {
+           download();
+       }catch (Throwable t) {
+           t.printStackTrace();
+       }
+
+    }
+
+    private void download(){
         Log.info(this.getClass()," 开始下载帖子 {}, 图片共{}张", postInfo.getId(), postInfo.getImageList().size() - 1);
 
         File mdFile = postInfo.getMdFile();
 
         for (int i = 0; i < postInfo.getImageList().size(); i++) {
             PostInfo.Image image = postInfo.getImageList().get(i);
-            
+
             Log.info(this.getClass(),"  开始下载图片  帖子[{} 第 {} 张照片 共{}张 ", postInfo.getId(),i + 1, postInfo.getImageList().size() - 1);
 
             try {
@@ -54,7 +63,7 @@ public class DownloadPostTask implements Runnable{
                 FileOutputStream imageOutput = new FileOutputStream(imageFile);
                 HttpUtil.download(image.getRemoteUrl(), imageOutput, true);
                 imageOutput.close();
-                
+
                 if (FileUtil.isEmpty(imageFile)) {
                     FileUtil.del(imageFile);
                     Log.info(this.getClass(),"帖子{}的图片{}格式损坏，已删除", postInfo.getId(), imageFile.getAbsolutePath());
@@ -64,16 +73,15 @@ public class DownloadPostTask implements Runnable{
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
-            
+
             FileUtil.appendString(StrUtil.format("- ![{}]({})\n", image.getFileName(), image.getLocalUrl()), mdFile, Charset.defaultCharset());
             Log.info(this.getClass(),"帖子 {} 的第 {} 张照片下载完成 共{}张 ", postInfo.getId(),i + 1, postInfo.getImageList().size());
-            
+
         }
         if (FileUtil.isEmpty(mdFile)) {
             FileUtil.del(mdFile);
             Log.info(this.getClass(),"帖子{}已损坏，已删除", postInfo.getId());
             postInfo.setIsDamage(true);
         }
-
     }
 }

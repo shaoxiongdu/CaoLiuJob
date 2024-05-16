@@ -23,7 +23,9 @@ import cn.shaoxiongdu.database.Database;
 import cn.shaoxiongdu.utils.Log;
 import lombok.AllArgsConstructor;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,14 @@ public class CrawlingPostTask implements Runnable{
     
     @Override
     public void run() {
+        try {
+            crawlingPost();
+        }catch (Throwable t){
+            t.printStackTrace();
+        }
+
+    }
+    private void crawlingPost() {
         Log.info(this.getClass(), "开始解析页面  url: {} ", url);
         List<PostInfo> postInfoList = getPostInfo();
         Log.info(this.getClass(), "页面解析完成 {} 共{}条帖子", url, postInfoList.size());
@@ -46,8 +56,11 @@ public class CrawlingPostTask implements Runnable{
     }
     
     private List<PostInfo> getPostInfo() {
-        
-        return Jsoup.parse(HttpUtil.get(url)).getElementById("ajaxtable")
+
+        Element ajaxtable = Jsoup.parse(HttpUtil.get(url)).getElementById("ajaxtable");
+        if (ObjUtil.isEmpty(ajaxtable)) return Collections.EMPTY_LIST;
+
+        return ajaxtable
                 .getElementsByClass("tr3 t_one tac")
                 .stream()
                 .filter(e -> e.childNodeSize() == 11)
